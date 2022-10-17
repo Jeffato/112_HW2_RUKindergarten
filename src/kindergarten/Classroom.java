@@ -60,12 +60,47 @@ public class Classroom {
             int height = StdIn.readInt();
 
             Student s = new Student(firstName, lastName, height);
+            insertStudent(s);
         }
     }
+    /*
+        Insert Student s into studentsInLine in alphabetical order
+     */
+    public void insertStudent(Student s){
+        //EDGE: If studentsInLine is empty
+        if(studentsInLine == null){
+            studentsInLine = new SNode(s, null);
+            return;
+        }
 
-    //compareNameTo -> n < 0 means this student's name comes before parameter student
-    //     * n > 0 means parameter student's name comes before this student
+        //DummyNode if node needs to be inserted at the front
+        SNode dummyNode = new SNode(s, studentsInLine);
+        SNode ptr = studentsInLine;
+        SNode prevPtr = dummyNode;
 
+        //Iterate through LL
+        while(ptr != null){
+            Student t = ptr.getStudent();
+
+            //compareNameTo -> n < 0 means this student's name comes before parameter student
+            if(s.compareNameTo(t) < 0){
+                prevPtr.setNext(new SNode(s, ptr));
+                studentsInLine = dummyNode.getNext();
+                return;
+            }
+
+            //EDGE: Students have the same name -> Use order of insertion
+            if(s.compareNameTo(t) == 0){
+
+            }
+
+            prevPtr = ptr;
+            ptr = ptr.getNext();
+        }
+
+        //Add to tail
+        prevPtr.setNext(new SNode(s, null));
+    }
     /**
      * 
      * This method creates and initializes the seatingAvailability (2D array) of 
@@ -84,8 +119,18 @@ public class Classroom {
      * @param seatingChart the seating chart input file
      */
     public void setupSeats(String seatingChart) {
+        StdIn.setFile(seatingChart);
+        int rows = StdIn.readInt();
+        int cols = StdIn.readInt();
 
-	// WRITE YOUR CODE HERE
+        seatingAvailability = new boolean[rows][cols];
+        studentsSitting = new Student[rows][cols];
+
+        for(int i = 0; i<rows; i++){
+            for(int j = 0; j<cols; j++){
+                seatingAvailability[i][j] = StdIn.readBoolean();
+            }
+        }
     }
 
     /**
