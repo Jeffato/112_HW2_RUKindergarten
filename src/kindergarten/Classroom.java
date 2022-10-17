@@ -60,13 +60,13 @@ public class Classroom {
             int height = StdIn.readInt();
 
             Student s = new Student(firstName, lastName, height);
-            insertStudent(s);
+            insertStudentByAlpha(s);
         }
     }
     /*
         Insert Student s into studentsInLine in alphabetical order
      */
-    private void insertStudent(Student s){
+    private void insertStudentByAlpha(Student s){
         //EDGE: If studentsInLine is empty
         if(studentsInLine == null){
             studentsInLine = new SNode(s, null);
@@ -222,10 +222,67 @@ public class Classroom {
      * The last line of this method calls the seatStudents() method so that students can be seated.
      */
     public void playMusicalChairs() {
+        //Find length of CLL
+        int musicalChairsLength = 1;
+        SNode ptr = musicalChairs.getNext();
+
+        while(ptr != musicalChairs){
+            musicalChairsLength++;
+            ptr = ptr.getNext();
+        }
+
+        //Generate removal Index
+        int removeIndex = StdRandom.uniform(musicalChairsLength);
+
+        //Remove student at removal index
+
+
+        //Place eliminated student in studentsInLine by height order
+
+        //end of loop
+
+        //call seatStudents, but place person who won in the first position.
+
 
         // WRITE YOUR CODE HERE
 
-    } 
+    }
+
+    private void insertStudentByHeight(Student s){
+        //EDGE: If studentsInLine is empty
+        if(studentsInLine == null){
+            studentsInLine = new SNode(s, null);
+            return;
+        }
+
+        //DummyNode if node needs to be inserted at the front
+        SNode dummyNode = new SNode(s, studentsInLine);
+        SNode ptr = studentsInLine;
+        SNode prevPtr = dummyNode;
+
+        //Iterate through LL
+        while(ptr != null){
+            Student t = ptr.getStudent();
+
+            //Insert shortest to tallest
+            if(s.getHeight() > t.getHeight()){
+                prevPtr.setNext(new SNode(s, ptr));
+                studentsInLine = dummyNode.getNext();
+                return;
+            }
+
+            //EDGE: Students have the same height -> Use order of insertion
+            if(s.compareNameTo(t) == 0){
+
+            }
+
+            prevPtr = ptr;
+            ptr = ptr.getNext();
+        }
+
+        //Add to tail
+        prevPtr.setNext(new SNode(s, null));
+    }
 
     /**
      * Insert a student to wherever the students are at (ie. whatever activity is not empty)
