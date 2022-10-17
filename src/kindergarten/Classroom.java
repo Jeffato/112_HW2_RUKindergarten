@@ -66,7 +66,7 @@ public class Classroom {
     /*
         Insert Student s into studentsInLine in alphabetical order
      */
-    public void insertStudent(Student s){
+    private void insertStudent(Student s){
         //EDGE: If studentsInLine is empty
         if(studentsInLine == null){
             studentsInLine = new SNode(s, null);
@@ -145,9 +145,34 @@ public class Classroom {
      * studentsInLine will then be empty
      */
     public void seatStudents () {
+	    //add musical chairs part later (1)
+        int row = 0;
+        int col = 0;
+        int numCols = seatingAvailability[0].length;
 
-	// WRITE YOUR CODE HERE
-	
+        //Seat all students in studentsSitting
+        while(studentsInLine != null){
+            Student s = studentsInLine.getStudent();
+            boolean updated = false;
+
+            //Do until student is seated
+            while(!updated){
+                int modCol = col % numCols;
+
+                if(seatingAvailability[row][modCol]){
+                    studentsSitting[row][modCol] = s;
+                    updated = true;
+                }
+
+                col++;
+                //Update row after cols are filled
+                if(col % numCols == 0){
+                    row++;
+                }
+            }
+
+            studentsInLine = studentsInLine.getNext();
+        }
     }
 
     /**
@@ -158,9 +183,28 @@ public class Classroom {
      * into second row.
      */
     public void insertMusicalChairs () {
-        
-        // WRITE YOUR CODE HERE
+        SNode dummyNode = new SNode();
+        SNode ptr = dummyNode;
 
+        int numRows = studentsSitting.length;
+        int numCols = studentsSitting[0].length;
+
+        //Iterate through students sitting
+        for(int i = 0; i <numRows; i++){
+            for(int j = 0; j<numCols; j++){
+
+                //Check if a student could be here, then if there actually is a student
+                if(seatingAvailability[i][j] && studentsSitting[i][j] != null){
+                    Student s = studentsSitting[i][j];
+                    ptr.setNext(new SNode(s,null));
+                    ptr = ptr.getNext();
+                }
+            }
+        }
+
+        //Create circularly linked list
+        ptr.setNext(dummyNode.getNext());
+        musicalChairs = ptr;
      }
 
     /**
