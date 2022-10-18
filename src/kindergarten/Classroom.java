@@ -146,6 +146,11 @@ public class Classroom {
      */
     public void seatStudents () {
 	    //add musical chairs part later (1)
+        if(musicalChairs != null){
+            studentsInLine = new SNode(musicalChairs.getStudent(), studentsInLine);
+            musicalChairs = null;
+        }
+
         int row = 0;
         int col = 0;
         int numCols = seatingAvailability[0].length;
@@ -221,9 +226,9 @@ public class Classroom {
      * 
      * The last line of this method calls the seatStudents() method so that students can be seated.
      */
-    public void playMusicalChairs() {
+    public void playMusicalChairs() { //something is not right lmao
         //Find length of CLL
-        int musicalChairsLength = 1;
+        int musicalChairsLength = 0;
         SNode ptr = musicalChairs.getNext();
 
         while(ptr != musicalChairs){
@@ -231,21 +236,27 @@ public class Classroom {
             ptr = ptr.getNext();
         }
 
-        //Generate removal Index
-        int removeIndex = StdRandom.uniform(musicalChairsLength);
+        System.out.println(musicalChairsLength);
 
-        //Remove student at removal index
+        while(musicalChairsLength > 0) {
+            //Generate removal Index
+            int removeIndex = StdRandom.uniform(musicalChairsLength);
 
+            //Remove student at removal index
+            for (int i = 0; i < removeIndex - 1; i++) {
+                ptr = ptr.getNext();
+            }
 
-        //Place eliminated student in studentsInLine by height order
+            SNode removedStudent = ptr.getNext();
+            ptr.setNext(ptr.getNext().getNext());
 
-        //end of loop
+            //Place eliminated student in studentsInLine by height order
+            insertStudentByHeight(removedStudent.getStudent());
+            musicalChairsLength--;
+        }
 
-        //call seatStudents, but place person who won in the first position.
-
-
-        // WRITE YOUR CODE HERE
-
+        //call seatStudents, but place person who won in the first position
+        seatStudents();
     }
 
     private void insertStudentByHeight(Student s){
