@@ -226,9 +226,9 @@ public class Classroom {
      * 
      * The last line of this method calls the seatStudents() method so that students can be seated.
      */
-    public void playMusicalChairs() { //something is not right lmao
+    public void playMusicalChairs() {
         //Find length of CLL
-        int musicalChairsLength = 0;
+        int musicalChairsLength = 1;
         SNode ptr = musicalChairs.getNext();
 
         while(ptr != musicalChairs){
@@ -236,30 +236,42 @@ public class Classroom {
             ptr = ptr.getNext();
         }
 
-        System.out.println(musicalChairsLength);
+//        System.out.print("Length of MusicalChairs: " + musicalChairsLength);
 
         while(musicalChairsLength > 0) {
             //Generate removal Index
             int removeIndex = StdRandom.uniform(musicalChairsLength);
+//            System.out.print(" Remove Student at: " + removeIndex);
 
             //Remove student at removal index
-            for (int i = 0; i < removeIndex - 1; i++) {
+            for (int i = 0; i < removeIndex; i++) {
                 ptr = ptr.getNext();
             }
 
+            if(ptr.getNext() == musicalChairs){
+                musicalChairs = ptr;
+            }
+
+//            System.out.print(" Removed: " + ptr.getNext().getStudent().getFullName());
             SNode removedStudent = ptr.getNext();
             ptr.setNext(ptr.getNext().getNext());
 
             //Place eliminated student in studentsInLine by height order
             insertStudentByHeight(removedStudent.getStudent());
             musicalChairsLength--;
+//            System.out.println();
+//            System.out.print("Length of MusicalChairs: " + musicalChairsLength);
+
+            //Reset ptr to tail of musical chairs
+            ptr = musicalChairs;
         }
 
         //call seatStudents, but place person who won in the first position
+//        System.out.println(" Winner" + musicalChairs.getStudent().getFullName());
         seatStudents();
     }
 
-    private void insertStudentByHeight(Student s){
+    private void insertStudentByHeight(Student s){ //something is not right lmao
         //EDGE: If studentsInLine is empty
         if(studentsInLine == null){
             studentsInLine = new SNode(s, null);
@@ -276,15 +288,30 @@ public class Classroom {
             Student t = ptr.getStudent();
 
             //Insert shortest to tallest
-            if(s.getHeight() > t.getHeight()){
+            if(s.getHeight() < t.getHeight()){
                 prevPtr.setNext(new SNode(s, ptr));
                 studentsInLine = dummyNode.getNext();
+                System.out.println("hi");
                 return;
             }
 
             //EDGE: Students have the same height -> Use order of insertion
-            if(s.compareNameTo(t) == 0){
+            if(s.getHeight() == t.getHeight()){
+                while(s.getHeight() == ptr.getStudent().getHeight()){
+                    prevPtr = ptr;
+                    ptr = ptr.getNext();
+                    System.out.println("kachow");
+                }
+//
+//                if(ptr == null){
+//                    prevPtr.setNext(new SNode(s, null));
+//                    return;
+//                }
 
+                prevPtr.setNext(new SNode(s, ptr));
+                studentsInLine = dummyNode.getNext();
+//                System.out.println("hey");
+                return;
             }
 
             prevPtr = ptr;
