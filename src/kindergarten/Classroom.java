@@ -89,11 +89,6 @@ public class Classroom {
                 return;
             }
 
-            //EDGE: Students have the same name -> Use order of insertion
-            if(s.compareNameTo(t) == 0){
-
-            }
-
             prevPtr = ptr;
             ptr = ptr.getNext();
         }
@@ -236,12 +231,14 @@ public class Classroom {
             ptr = ptr.getNext();
         }
 
-//        System.out.print("Length of MusicalChairs: " + musicalChairsLength);
+        System.out.print("Length of MusicalChairs: " + musicalChairsLength);
 
-        while(musicalChairsLength > 0) {
+        while(musicalChairsLength > 1) {
+            ptr = musicalChairs;
+
             //Generate removal Index
             int removeIndex = StdRandom.uniform(musicalChairsLength);
-//            System.out.print(" Remove Student at: " + removeIndex);
+            System.out.print(" Remove Student at: " + removeIndex);
 
             //Remove student at removal index
             for (int i = 0; i < removeIndex; i++) {
@@ -252,22 +249,20 @@ public class Classroom {
                 musicalChairs = ptr;
             }
 
-//            System.out.print(" Removed: " + ptr.getNext().getStudent().getFullName());
-            SNode removedStudent = ptr.getNext();
+            System.out.print(" Removed: " + ptr.getNext().getStudent().getFullName());
+            Student removedStudent = ptr.getNext().getStudent();
             ptr.setNext(ptr.getNext().getNext());
 
             //Place eliminated student in studentsInLine by height order
-            insertStudentByHeight(removedStudent.getStudent());
+            insertStudentByHeight(removedStudent);
             musicalChairsLength--;
-//            System.out.println();
-//            System.out.print("Length of MusicalChairs: " + musicalChairsLength);
+            System.out.println();
+            System.out.print("Length of MusicalChairs: " + musicalChairsLength);
 
-            //Reset ptr to tail of musical chairs
-            ptr = musicalChairs;
         }
 
         //call seatStudents, but place person who won in the first position
-//        System.out.println(" Winner" + musicalChairs.getStudent().getFullName());
+        System.out.println(" Winner" + musicalChairs.getStudent().getFullName());
         seatStudents();
     }
 
@@ -288,10 +283,10 @@ public class Classroom {
             Student t = ptr.getStudent();
 
             //Insert shortest to tallest
-            if(s.getHeight() < t.getHeight()){
+            if(s.getHeight() <= t.getHeight()){
                 prevPtr.setNext(new SNode(s, ptr));
                 studentsInLine = dummyNode.getNext();
-                System.out.println("hi");
+//                System.out.println("hi");
                 return;
             }
 
@@ -300,7 +295,6 @@ public class Classroom {
                 while(s.getHeight() == ptr.getStudent().getHeight()){
                     prevPtr = ptr;
                     ptr = ptr.getNext();
-                    System.out.println("kachow");
                 }
 //
 //                if(ptr == null){
@@ -330,9 +324,49 @@ public class Classroom {
      * @param height the height of the student
      */
     public void addLateStudent ( String firstName, String lastName, int height ) {
-        
-        // WRITE YOUR CODE HERE
-        
+        Student lateStudent = new Student(firstName, lastName, height);
+
+        //Add to last node of musical chairs
+        if(musicalChairs != null){
+            musicalChairs.setNext(new SNode(lateStudent, musicalChairs.getNext()));
+            musicalChairs = musicalChairs.getNext();
+        }
+
+        //Add to last node of studentsInLine
+        if(studentsInLine != null){
+            SNode ptr = studentsInLine;
+
+            while(ptr.getNext() != null){
+                ptr = ptr.getNext();
+            }
+
+            ptr.setNext(new SNode(lateStudent, null));
+        }
+
+        //Add to first available seat
+        int row = 0;
+        int col = 0;
+        int numCols = seatingAvailability[0].length;
+        int numRows = seatingAvailability.length;
+
+        //Seat all students in studentsSitting
+        boolean updated = false;
+
+        //Do until student is seated
+        while(!updated && row < numRows){
+            int modCol = col % numCols;
+
+            if(seatingAvailability[row][modCol] && studentsSitting[row][modCol] == null){
+                studentsSitting[row][modCol] = lateStudent;
+                updated = true;
+            }
+
+            col++;
+            //Update row after cols are filled
+            if(col % numCols == 0){
+                row++;
+            }
+        }
     }
 
     /**
@@ -346,9 +380,95 @@ public class Classroom {
      * @param lastName the student's last name
      */
     public void deleteLeavingStudent ( String firstName, String lastName ) {
+        String modFirstName = cleanName(firstName);
+        String modLastName = cleanName(lastName);
+        boolean updated = false;
 
-        // WRITE YOUR CODE HERE
+        if(musicalChairs != null){
+            int musicalChairsLength = 1;
+            SNode ptr = musicalChairs.getNext();
 
+            while(ptr != musicalChairs){
+                musicalChairsLength++;
+                ptr = ptr.getNext();
+            }
+
+            ptr = musicalChairs;
+
+            for(int i = 0; i<musicalChairsLength; i++){
+                Student check = ptr.getNext().getStudent();
+                if(check.getFirstName().equals(modFirstName) && check.getLastName().equals(modLastName)){
+
+                    if(ptr.getNext() == musicalChairs){
+                        musicalChairs = ptr;
+                    }
+
+                    ptr.setNext(ptr.getNext().getNext());
+                    return;
+                }
+
+                ptr = ptr.getNext();
+            }
+        }
+
+        if(studentsInLine != null){
+            SNode dummyHead = new SNode();
+            dummyHead.setNext(studentsInLine);
+            SNode ptr= dummyHead;
+
+            while(ptr.getNext() != null){
+                Student check = ptr.getNext().getStudent();
+                if(check.getFirstName().equals(modFirstName) && check.getLastName().equals(modLastName)){
+                    ptr.setNext(ptr.getNext().getNext());
+
+                    studentsInLine = dummyHead.getNext();
+                    return;
+                }
+
+                ptr = ptr.getNext();
+            }
+            return;
+        }
+
+        else{
+            int row = 0;
+            int col = 0;
+            int numCols = seatingAvailability[0].length;
+            int numRows = seatingAvailability.length;
+
+            while(!updated && row < numRows) {
+                int modCol = col % numCols;
+
+                if (studentsSitting[row][modCol] != null && studentsSitting[row][modCol].getFirstName().equals(modFirstName) && studentsSitting[row][modCol].getLastName().equals(modLastName)) {
+                    studentsSitting[row][modCol] = null;
+                    updated = true;
+                }
+
+                col++;
+                //Update row after cols are filled
+                if (col % numCols == 0) {
+                    row++;
+                }
+            }
+        }
+    }
+
+    private String cleanName(String name){
+        String output = "";
+
+        char[] temp = name.toCharArray();
+
+        for(int i = 0; i<temp.length; i++){
+            if(i == 0){
+                output += Character.toUpperCase(temp[i]);
+            }
+
+            else{
+                output += Character.toLowerCase(temp[i]);
+            }
+        }
+
+        return output;
     }
 
     /**
